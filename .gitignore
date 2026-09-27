@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+.venv/
+data/
+options.json
+rules.json
+restore-pending.json
+presets.json
+settings.json
+.env
+.env.*
+*.pem
+*.key

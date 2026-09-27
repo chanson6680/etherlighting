@@ -1,0 +1,10 @@
+{
+  "configuration": {
+    "switch_host": {"name":"Switch address"},
+    "ssh_username": {"name":"Device SSH username"},
+    "ssh_password": {"name":"Device SSH password","description":"Stored in this Home Assistant app's configuration. Never included in the web interface or logs."},
+    "ssh_host_key": {"name":"Verified SSH public host key","description":"Key type followed by the complete public key. This is not a password."},
+    "refresh_seconds": {"name":"Initial polling interval (seconds)","description":"Used until lighting settings are saved in the app. Use Lighting settings in the sidebar app to adjust polling and color refresh separately."},
+    "allow_led_control": {"name":"Allow LED control","description":"Experimental. Keep off until you are ready to observe a ten-second test on the physical switch."}
+  }
+}

@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="csrf-token" content="__CSRF__"><title>Etherlighting</title><link rel="stylesheet" href="./style.css"><script src="./app.js" defer></script></head>
+<body><main>
+<header><div><div class="eyebrow">YOUR NETWORK, IN COLOR</div><h1>Etherlighting<span class="logo-dot"></span></h1><p>Choose a device. Give its port a color.</p></div><span id="connection" class="badge">Connecting</span></header>
+<div id="notice" class="notice">Loading your switch…</div>
+<section class="panel switch-panel"><div class="section-head"><div><h2>USW Pro Max 48 PoE</h2><p id="switch-detail">52 ports</p></div><div class="actions"><button id="check" hidden>Check LED interface</button><button id="refresh">Refresh now</button></div></div>
+<div class="switch-shell"><div id="ports" class="ports" aria-label="Switch port color preview"></div></div>
+<div class="legend"><span><i class="dot live"></i>Active link</span><span><i class="dot assigned"></i>Planned color</span><span><i class="dot"></i>Disconnected</span><span>Preview colors show your rules, not measured LED output.</span></div>
+<div class="stats"><div><strong id="device-count">—</strong><span>learned MACs</span></div><div><strong id="link-count">—</strong><span>active ports</span></div><div><strong id="rule-count">0</strong><span>color rules</span></div><div><strong id="ready-count">0</strong><span>ready ports</span></div></div></section>
+<section class="panel"><div class="section-head"><div><h2>Your colors</h2><p>Rules stay with the MAC address when the device moves.</p></div><div class="actions"><button id="export">Export</button><label class="button">Import<input type="file" id="import" accept="application/json,.json" hidden></label><button id="add" class="primary">Add a device</button></div></div>
+<div id="empty-rules" class="empty">No colors assigned yet. Choose a device below to get started.</div><div id="rules" class="rule-grid"></div>
+<div class="control-bar"><p id="control-note">Read-only preview. Saving rules does not change the switch.</p><div class="actions"><button id="stop" disabled>Stop &amp; restore</button><button id="start" class="primary" disabled>Start following colors</button></div></div></section>
+<section class="panel"><div class="section-head"><div><h2>Unidentified devices &amp; refresh</h2><p id="settings-summary">Loading lighting preferences…</p></div><button id="edit-settings">Lighting settings</button></div>
+<p class="small">Unidentified means no saved color rule, even if the device has a name. Assigned colors take priority. The fallback covers shared ports too, but excludes uplinks and ports reserved by paused or blocked rules.</p>
+<p class="small">Polling updates changed ports only. Color refresh reapplies every planned color to replace UniFi overrides and may briefly flash. Refresh now reads devices and reapplies colors when running; when stopped, it only reads devices.</p></section>
+<section class="panel"><div class="section-head"><div><h2>Color presets</h2><p>Reusable colors for your devices. Editing a preset leaves saved device colors unchanged.</p></div><button id="add-preset">Add preset</button></div><div id="preset-list" class="rule-grid"></div><p id="empty-presets" class="empty" hidden>No presets yet. Add a name and color to get started.</p></section>
+<section class="panel"><div class="section-head"><div><h2>Discovered devices</h2><p id="seen-at">Waiting for the switch</p></div><input id="search" type="search" placeholder="Search name, MAC, IP, or port" aria-label="Search devices"></div>
+<div class="table-wrap"><table><thead><tr><th>Device</th><th>Port</th><th>Connection</th><th>Color</th></tr></thead><tbody id="devices"></tbody></table></div><div id="no-results" class="empty" hidden>No matching devices.</div></section>
+<footer>Local device discovery · No VLAN changes · US2.7.5.15</footer>
+</main><div id="toast" role="status" hidden></div>
+<dialog id="editor"><form id="rule-form"><div class="section-head"><h2>Device color</h2><button type="button" id="close" aria-label="Close editor">×</button></div>
+<label>Device name<input id="name" maxlength="80" placeholder="A name you recognize"></label>
+<label>MAC address<input id="mac" required placeholder="aa:bb:cc:dd:ee:ff" spellcheck="false"></label>
+<label>Preset<select id="preset"><option value="">Custom</option></select></label>
+<div class="color-row"><label>Port color<input type="color" id="color" value="#38bdf8"></label><label>Brightness <output id="level">30%</output><input type="range" id="brightness" min="1" max="100" value="30"></label></div>
+<label class="check"><input type="checkbox" id="enabled" checked> Follow this device</label>
+<label class="check"><input type="checkbox" id="shared"> Allow this color on a shared port</label><p class="small">A shared port carries several devices. Its light can show one color; conflicting rules are blocked. The switch uplink is excluded.</p>
+<div class="dialog-actions"><button type="button" id="remove" class="danger">Remove rule</button><button type="submit" class="primary">Save color</button></div></form></dialog>
+<dialog id="preset-editor"><form id="preset-form"><div class="section-head"><h2 id="preset-title">Add preset</h2><button type="button" id="close-preset" aria-label="Close preset editor">×</button></div>
+<label>Preset name<input id="preset-name" maxlength="40" required placeholder="For example, Game consoles"></label>
+<label>Preset color<input type="color" id="preset-color" value="#38bdf8"></label>
+<p class="small">Choose this preset in a device's color editor to use it. Existing device colors stay as saved.</p>
+<div class="dialog-actions"><button type="button" id="delete-preset" class="danger">Delete preset</button><button type="submit" class="primary">Save preset</button></div></form></dialog>
+<dialog id="settings-editor"><form id="settings-form"><div class="section-head"><h2>Lighting settings</h2><button type="button" id="close-settings" aria-label="Close lighting settings">×</button></div>
+<label class="check"><input type="checkbox" id="fallback-enabled"> Color unidentified devices</label>
+<div class="color-row"><label>Unidentified device color<input type="color" id="fallback-color" value="#ffffff"></label><label>Brightness (%)<input type="number" id="fallback-brightness" min="1" max="100" required value="20"></label></div>
+<label>Poll switch every (seconds)<input type="number" id="poll-seconds" min="15" max="3600" required value="30"></label>
+<p class="small">15–3,600 seconds. Reads connected devices and updates only changed colors.</p>
+<label>Reapply colors every (seconds)<input type="number" id="push-seconds" min="0" max="3600" required value="300"></label>
+<p class="small">15–3,600 seconds, or 0 for changes and manual refresh only. Longer intervals reduce repeated flashes, but UniFi may override a color before the next refresh. Each color refresh also checks device locations.</p>
+<div class="dialog-actions"><button type="submit" class="primary">Save lighting settings</button></div></form></dialog>
+</body></html>
