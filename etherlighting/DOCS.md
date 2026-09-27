@@ -32,7 +32,8 @@ After a successful physical test, **Start following colors** applies eligible ru
 ## Connection and recovery
 
 - SSH host keys are checked strictly. A mismatch stops the connection; do not replace the pinned public key until the switch's identity has been verified independently.
-- A firmware change blocks writes until compatibility is reviewed. Discovery remains available if its table format is unchanged.
+- The app detects Pro Max 16/24/48 models with and without PoE. Port counts and the preview adapt to the model. Only Pro Max 48 PoE on US2.7.5.15 is hardware tested. Other listed combinations require **Allow experimental models**, successful interface checks, and an observed ten-second color/restoration test. Pro XG, Pro HD, Enterprise, and unknown models are not supported.
+- A model/firmware change during control blocks further writes; restart and review compatibility. This can leave restoration pending. Discovery must match the model's complete port table.
 - If the app reports restoration pending, reconnect and press **Stop & restore** before starting another test. Uninstalling the app while the switch is unreachable cannot restore physical LEDs.
 - Rules are stored in the app's persistent data. **Export** saves them to a JSON file; **Import** merges by MAC address, replacing matching MAC rules.
 - The local desktop preview uses the temporary read-only SSH helper and cannot enable LED writes. Its saved rules can be exported and imported into the HAOS installation.
@@ -47,3 +48,4 @@ After a successful physical test, **Start following colors** applies eligible ru
 | SSH host key | Public key type and base64 key from a verified switch connection |
 | Initial polling interval | Initial discovery interval, 15–300 seconds; default 30. Saved in-app Lighting settings take priority. |
 | Allow LED control | Enables the experimental test/start/restore controls; default off |
+| Allow experimental models | Permits listed but untested Pro Max model/firmware combinations after interface checks; default off. Does not unlock unknown families. |

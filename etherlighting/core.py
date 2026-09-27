@@ -19,7 +19,7 @@ def mac(value):
     return value
 
 
-def parse_macs(text):
+def parse_macs(text, port_count=52):
     lines = text.splitlines()
     header = next((i for i, line in enumerate(lines) if "mac-address" in line and "port" in line), None)
     if header is None or header + 1 >= len(lines):
@@ -38,23 +38,25 @@ def parse_macs(text):
             age = int(fields[6])
         except ValueError as error:
             raise ValueError("An unexpected row appeared in the switch MAC table.") from error
-        if not 1 <= port <= 52:
+        if not 1 <= port <= port_count:
             raise ValueError("The switch reported an unsupported port number.")
         rows.append(dict(mac=address, port=port, vlan=vlan, ip=fields[3],
                          name=fields[4], age=age, wireless=fields[7]))
     return rows
 
 
-def parse_ports(text):
+def parse_ports(text, port_count=52):
     ports = {}
     for line in text.splitlines():
         match = re.match(r"\s*(U?)(\d+)\s+(\S+/\S+)\s+(\d+)[FH]\b", line)
         if match:
             uplink, number, link, speed = match.groups()
             port = int(number)
+            if port in ports:
+                raise ValueError("The switch returned a duplicate port row.")
             ports[port] = dict(port=port, uplink=bool(uplink), up=link == "U/U", speed=int(speed))
-    if set(ports) != set(range(1, 53)):
-        raise ValueError("Expected all 52 switch ports; discovery was incomplete.")
+    if set(ports) != set(range(1, port_count + 1)):
+        raise ValueError(f"Expected all {port_count} switch ports; discovery was incomplete or the model differs.")
     return ports
 
 
@@ -154,8 +156,8 @@ def make_plan(rows, ports, rules, max_age=300, settings=None):
     return dict(decisions=decisions, desired=desired, fallback_ports=fallback_ports)
 
 
-def led_command(port, color, brightness):
-    if type(port) is not int or not 1 <= port <= 52:
+def led_command(port, color, brightness, port_count=52):
+    if type(port_count) is not int or not 1 <= port_count <= 52 or type(port) is not int or not 1 <= port <= port_count:
         raise ValueError("Unsupported port")
     if not isinstance(color, str) or not COLOR.fullmatch(color):
         raise ValueError("Invalid color")

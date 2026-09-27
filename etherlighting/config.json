@@ -1,6 +1,6 @@
 {
   "name": "Etherlighting",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "slug": "etherlighting",
   "description": "Discover switch MAC addresses and plan per-device port colors. Experimental LED control is off by default.",
   "arch": ["amd64", "aarch64"],
@@ -18,7 +18,8 @@
     "ssh_password": "",
     "ssh_host_key": "",
     "refresh_seconds": 30,
-    "allow_led_control": false
+    "allow_led_control": false,
+    "allow_experimental_models": false
   },
   "schema": {
     "switch_host": "str",
@@ -26,6 +27,7 @@
     "ssh_password": "password",
     "ssh_host_key": "str",
     "refresh_seconds": "int(15,300)",
-    "allow_led_control": "bool"
+    "allow_led_control": "bool",
+    "allow_experimental_models": "bool"
   }
 }

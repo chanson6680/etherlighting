@@ -27,6 +27,7 @@ class Application:
         self.lock = threading.RLock()
         self.quit = threading.Event()
         self.rows, self.ports = [], {}
+        self.device = None
         self.updated, self.error = 0, "Waiting for the switch"
         self.active = False
         self.applied = {}
@@ -39,8 +40,13 @@ class Application:
 
     def refresh(self, force=False, apply_colors=True):
         with self.lock:
-            rows = parse_macs(self.switch.read("mac_table"))
-            ports = parse_ports(self.switch.read("port_table"))
+            device = self.switch.describe() if hasattr(self.switch, "describe") else None
+            count = device["port_count"] if device else 52
+            rows = parse_macs(self.switch.read("mac_table"), count)
+            ports = parse_ports(self.switch.read("port_table"), count)
+            if self.active and self.device and device != self.device:
+                raise ValueError("Switch identity changed. Stop and review compatibility before restarting colors.")
+            self.device = device
             self.rows, self.ports = rows, ports
             self.updated, self.error = time.time(), ""
             self.next_poll = time.monotonic() + self.settings["poll_seconds"]
@@ -89,6 +95,7 @@ class Application:
         with self.lock:
             return dict(rows=self.rows, ports=list(self.ports.values()), rules=self.rules, presets=self.presets, settings=self.settings,
                         last_push=self.last_push, stale_after=self.settings["poll_seconds"] + 60,
+                        device=self.device, demo=self.options.get("demo", False),
                         plan=self.plan(), updated=self.updated, error=self.error,
                         active=self.active, allow_control=self.allow_control,
                         restore_pending=self.pending, applied=self.applied,

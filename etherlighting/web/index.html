@@ -4,7 +4,7 @@
 <body><main>
 <header><div><div class="eyebrow">YOUR NETWORK, IN COLOR</div><h1>Etherlighting<span class="logo-dot"></span></h1><p>Choose a device. Give its port a color.</p></div><span id="connection" class="badge">Connecting</span></header>
 <div id="notice" class="notice">Loading your switch…</div>
-<section class="panel switch-panel"><div class="section-head"><div><h2>USW Pro Max 48 PoE</h2><p id="switch-detail">52 ports</p></div><div class="actions"><button id="check" hidden>Check LED interface</button><button id="refresh">Refresh now</button></div></div>
+<section class="panel switch-panel"><div class="section-head"><div><h2 id="switch-model">UniFi Etherlighting</h2><p id="switch-detail">Discovering switch…</p><p id="compatibility" class="small"></p></div><div class="actions"><button id="check" hidden>Check LED interface</button><button id="refresh">Refresh now</button></div></div>
 <div class="switch-shell"><div id="ports" class="ports" aria-label="Switch port color preview"></div></div>
 <div class="legend"><span><i class="dot live"></i>Active link</span><span><i class="dot assigned"></i>Planned color</span><span><i class="dot"></i>Disconnected</span><span>Preview colors show your rules, not measured LED output.</span></div>
 <div class="stats"><div><strong id="device-count">—</strong><span>learned MACs</span></div><div><strong id="link-count">—</strong><span>active ports</span></div><div><strong id="rule-count">0</strong><span>color rules</span></div><div><strong id="ready-count">0</strong><span>ready ports</span></div></div></section>
@@ -17,7 +17,7 @@
 <section class="panel"><div class="section-head"><div><h2>Color presets</h2><p>Reusable colors for your devices. Editing a preset leaves saved device colors unchanged.</p></div><button id="add-preset">Add preset</button></div><div id="preset-list" class="rule-grid"></div><p id="empty-presets" class="empty" hidden>No presets yet. Add a name and color to get started.</p></section>
 <section class="panel"><div class="section-head"><div><h2>Discovered devices</h2><p id="seen-at">Waiting for the switch</p></div><input id="search" type="search" placeholder="Search name, MAC, IP, or port" aria-label="Search devices"></div>
 <div class="table-wrap"><table><thead><tr><th>Device</th><th>Port</th><th>Connection</th><th>Color</th></tr></thead><tbody id="devices"></tbody></table></div><div id="no-results" class="empty" hidden>No matching devices.</div></section>
-<footer>Local device discovery · No VLAN changes · US2.7.5.15</footer>
+<footer>Local device discovery · No VLAN changes · Pro Max RGBW driver</footer>
 </main><div id="toast" role="status" hidden></div>
 <dialog id="editor"><form id="rule-form"><div class="section-head"><h2>Device color</h2><button type="button" id="close" aria-label="Close editor">×</button></div>
 <label>Device name<input id="name" maxlength="80" placeholder="A name you recognize"></label>

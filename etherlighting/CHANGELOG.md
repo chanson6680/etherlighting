@@ -1,3 +1,10 @@
+# 0.4.0
+
+- Detect Pro Max 16/24/48 PoE and non-PoE switches with model-specific port maps and discovery/LED bounds.
+- Add opt-in experimental profiles and firmware support with RGBW checks; only Pro Max 48 PoE on US2.7.5.15 remains hardware tested.
+- Block unknown families, incompatible interfaces, unsupported restoration modes, and mid-session identity changes.
+- Add installation, troubleshooting, compatibility evidence, screenshots with fictional devices, and a local demo.
+
 # 0.3.1
 
 - Prepare the public GitHub repository with installation instructions.

@@ -1,4 +1,20 @@
-# Compatibility investigation — 26 September 2026
+# Compatibility
+
+## Model support in 0.4.0
+
+The driver recognizes six Pro Max models: 16, 24, and 48, each with and without PoE. Model detection determines complete discovery-table validation, LED port limits, and the UI layout. There is no arbitrary user-supplied port-count override.
+
+Only **USW-Pro-Max-48-PoE / US2.7.5.15** is hardware tested by this project. Other recognized model/firmware combinations are experimental and require `allow_experimental_models: true` in addition to LED control. The driver validates the RGBW help signature, advertised port range, and stock mode 0–2 before control. Model/firmware changes invalidate control verification. Unknown models and Pro XG/HD/Enterprise families remain blocked.
+
+Layout evidence: Ubiquiti specifies 16 Ethernet + 2 SFP+ ports for [Pro Max 16](https://techspecs.ui.com/unifi/switching/usw-pro-max-16) and [16 PoE](https://techspecs.ui.com/unifi/switching/usw-pro-max-16-poe), 24 + 2 for [24](https://techspecs.ui.com/unifi/switching/usw-pro-max-24) and [24 PoE](https://techspecs.ui.com/unifi/switching/usw-pro-max-24-poe), and 48 + 4 for [48](https://techspecs.ui.com/unifi/switching/usw-pro-max-48) and [48 PoE](https://techspecs.ui.com/unifi/switching/usw-pro-max-48-poe).
+
+[Etherlighter's source](https://github.com/robherley/etherlighter/blob/main/internal/device/client.go) identifies Pro Max 24 PoE as the author's own model and uses individual RGB proc channels. Its other layouts are explicitly guesses. This corroborates the interface family, but does not prove this app's white-channel or restoration behavior on other models. Experimental support is an inference, gated by read-only checks and a required physical test.
+
+[Pro XG 8 research](https://github.com/Ozark-Connect/unifi-lightshow/blob/main/RESEARCH.md) describes different lighting interfaces and MCU behavior. The Pro Max driver is not reused for that hardware. No universal Etherlighting compatibility is claimed.
+
+Software tests simulate all six layouts and reject missing/duplicate/out-of-range ports, unsupported identities, and changed interfaces. Actual discovery formats, colors, and restoration still need confirmation on each experimental model/firmware before continuous use. One switch is controlled per app installation.
+
+## Hardware investigation — 26 September 2026
 
 Read-only SSH inspection confirmed:
 

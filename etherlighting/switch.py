@@ -6,6 +6,7 @@ import time
 import uuid
 from pathlib import Path
 from core import led_command, restore_command
+from models import identify, validate_interface
 
 READS = {
     "mac_table": "swctrl mac show",
@@ -24,12 +25,15 @@ class SSHSwitch:
         self.options = options
         self.client = None
         self.checked = False
+        self.device = None
+        self.control_identity = None
 
     def close(self):
         if self.client:
             self.client.close()
         self.client = None
         self.checked = False
+        self.device = None
 
     def connect(self):
         import paramiko
@@ -97,27 +101,34 @@ class SSHSwitch:
         except Exception as error:
             raise RuntimeError(f"Reading {name}: {error}") from error
 
+    def describe(self):
+        # Refresh identity before discovery, including after a switch reboot.
+        device = identify(self.read("identity"))
+        if self.device != device:
+            self.checked = False
+        self.device = device
+        return self.device
+
     def verify_control(self):
-        identity = self.read("identity")
-        if "board.name=USW-Pro-Max-48-PoE\n" not in identity or "US2.7.5.15" not in identity.splitlines():
-            raise ValueError("LED control is limited to the inspected USW Pro Max 48 PoE firmware US2.7.5.15.")
-        help_text = self.read("led_help")
-        if '1 ff cc ff 100' not in help_text or 'port[1-52]' not in help_text:
-            raise ValueError("The switch LED interface differs from the inspected version.")
-        raw_help = self.read("raw_help")
-        if '1 r 65535' not in raw_help or 'r=Red g=Green b=Blue w=White' not in raw_help:
-            raise ValueError("The switch RGBW channel interface differs from the inspected version.")
+        self.checked = False
+        device = self.describe()
+        identity = (device["model"], device["firmware"])
+        if self.control_identity and identity != self.control_identity:
+            raise ValueError("Switch model or firmware changed. Restart the app and review compatibility before LED writes.")
+        validate_interface(device, self.read("led_help"), self.read("raw_help"),
+                           self.read("mode"), self.options.get("allow_experimental_models", False))
         try:
             self._run("printf '%s\\n' 'etherlighting-check'")
         except Exception as error:
             raise RuntimeError(f"Checking switch shell output (no LED write): {error}") from error
         self.checked = True
+        self.control_identity = identity
 
     def color(self, port, color, brightness):
         if not self.checked:
             self.verify_control()
         try:
-            self._run(led_command(port, color, brightness), write=True)
+            self._run(led_command(port, color, brightness, self.device["port_count"]), write=True)
         except Exception as error:
             raise RuntimeError(f"Setting port {port} color: {error}") from error
 

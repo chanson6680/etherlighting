@@ -47,16 +47,22 @@ function render(){
   $('connection').textContent=stale?'Connection needs attention':state.active?'Colors running':'Live discovery';
   $('notice').classList.toggle('error',!!stale||state.restore_pending&&!state.active);
   $('notice').textContent=state.error || (state.restore_pending&&!state.active?'LED restoration is pending. Reconnect and use Stop & restore.':state.active?'Color rules are running. Ports refresh as devices move.':state.allow_control?'LED controls are available. Run a 10-second test before starting continuous color control.':'Read-only preview. Explore your real devices and save colors; the switch LEDs stay unchanged.');
+  if(state.demo){$('connection').textContent='Demo · Sample devices';$('notice').textContent='Demo with fictional devices. No switch is connected. '+$('notice').textContent;}
   $('check').hidden=state.connection!=='direct';
-  $('switch-detail').textContent=state.switch_host+' · 48 Ethernet + 4 SFP+ ports';
+  const device=state.device;
+  $('switch-model').textContent=device?.model.replaceAll('-',' ')||'UniFi Etherlighting';
+  $('switch-detail').textContent=state.switch_host+' · '+(device?device.copper_ports+' Ethernet + '+device.sfp_ports+' SFP+ ports':state.ports.length+' ports');
+  $('compatibility').textContent=device?device.firmware+' · '+device.compatibility:'';
+  $('ports').style.gridTemplateRows='repeat('+(device?.rows||2)+',34px)';
+  $('ports').style.minWidth=((device?.port_count||state.ports.length)/(device?.rows||2)*34)+'px';
   $('device-count').textContent=new Set(state.rows.map(r=>r.mac)).size;
   $('link-count').textContent=state.ports.filter(p=>p.up).length;
   $('rule-count').textContent=state.rules.rules.length;$('ready-count').textContent=Object.keys(state.plan.desired).length;
   $('seen-at').textContent=state.updated?'Last read '+new Date(state.updated*1000).toLocaleTimeString()+' · Shared ports may include devices behind another switch or Wi-Fi access point.':'Waiting for the switch';
   $('ports').replaceChildren();
-  for(let port=1;port<=52;port++){
-    const p=state.ports.find(p=>p.port===port), color=state.plan.desired[port];
-    const el=node('button',String(port),'port'+(p?.up?' link':'')+(color?' planned':'')+(p?.uplink?' uplink':'')+(port>48?' sfp':''));
+  for(const p of [...state.ports].sort((a,b)=>a.port-b.port)){
+    const port=p.port, color=state.plan.desired[port];
+    const el=node('button',String(port),'port'+(p.up?' link':'')+(color?' planned':'')+(p.uplink?' uplink':'')+(device&&port>device.copper_ports?' sfp':''));
     if(color)el.style.setProperty('--port-color',color.color);
     const names=state.rows.filter(r=>r.port===port).map(r=>r.name||r.mac);
     el.title='Port '+port+(p?.uplink?' · Uplink':'')+' · '+(names.join(', ')||'No devices learned');
